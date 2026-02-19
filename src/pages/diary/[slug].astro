@@ -1,0 +1,62 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content'
+import Layout from '../../layouts/Layout.astro'
+
+interface Props {
+  entry: CollectionEntry<'diary'>
+}
+
+export async function getStaticPaths() {
+  const entries = await getCollection('diary')
+  return entries.map((entry: CollectionEntry<'diary'>) => ({
+    params: { slug: entry.slug },
+    props: { entry }
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await entry.render()
+
+const { title, date, mood, location } = entry.data
+
+const moodColors = {
+  contemplative: 'text-blue-400',
+  energetic: 'text-yellow-400',
+  melancholic: 'text-indigo-400',
+  neutral: 'text-gray-400',
+  euphoric: 'text-pink-400'
+}
+
+const moodColor = moodColors[mood as keyof typeof moodColors] || 'text-mist'
+
+const ogImage = new URL(`/diary/og/${entry.slug}.png`, Astro.url)
+---
+
+<Layout
+  title={`Diary: ${title}`}
+  description={`A diary entry from ${date.toLocaleDateString()} - Mood: ${mood}`}
+  image={ogImage.toString()}
+  type="article"
+  publishDate={date}
+>
+  <div class="max-w-xl mx-auto py-20 flex flex-col gap-12">
+    <header class="text-center flex flex-col gap-4">
+      <div class="font-mono text-xs text-mist/40">
+        {entry.data.date.toDateString()}
+      </div>
+      <h1 class="text-3xl font-bold tracking-tight">{entry.data.title}</h1>
+      <div class="flex justify-center gap-4 text-sm font-mono">
+        {entry.data.location && <span>📍 {entry.data.location}</span>}
+        <span class={moodColor}>● {entry.data.mood}</span>
+      </div>
+    </header>
+
+    <div class="prose prose-invert prose-p:font-serif prose-p:leading-loose">
+      <Content />
+    </div>
+
+    <div class="mt-20 text-center">
+      <span class="text-2xl text-mist/20">***</span>
+    </div>
+  </div>
+</Layout>

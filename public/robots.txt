@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gphariyono.com/sitemap-index.xml

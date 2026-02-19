@@ -1,0 +1,93 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description?: string
+  image?: string
+  type?: 'website' | 'article'
+  publishDate?: Date
+}
+
+const {
+  title,
+  description = 'Gharis Primada Hariyono',
+  image = '/og-default.png',
+  type = 'website',
+  publishDate
+} = Astro.props
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site)
+const socialImageURL = new URL(image, Astro.site)
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImageURL} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
+
+    {
+      publishDate && (
+        <meta
+          property="article:published_time"
+          content={publishDate.toISOString()}
+        />
+      )
+    }
+  </head><body class="selection:bg-orange-500/20">
+    <div class="noise-bg"></div>
+
+    <nav
+      class="fixed top-0 left-0 w-full z-40 p-6 mix-blend-difference text-mist pointer-events-none"
+    >
+      <div
+        class="max-w-7xl mx-auto flex justify-between items-start pointer-events-auto"
+      >
+        <a
+          href="/"
+          class="text-xl font-bold tracking-tighter hover:tracking-widest transition-all duration-700 ease-squish"
+        >
+          gphariyono
+        </a>
+        <div class="flex flex-col gap-2 text-right text-sm font-mono">
+          <a href="/essays" class="hover:text-accent transition-colors"
+            >ESSAYS</a
+          >
+          <a
+            href="/diary"
+            class="hover:text-accent transition-colors translate-x-2">DIARY</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="relative z-10 min-h-screen px-6 pt-32 pb-20 max-w-7xl mx-auto">
+      <slot />
+    </main>
+  </body>
+</html>
