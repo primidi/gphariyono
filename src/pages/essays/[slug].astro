@@ -18,6 +18,9 @@ interface Props {
 const { entry } = Astro.props
 const { Content, headings } = await entry.render()
 
+const wordCount = entry.body.split(/\s+/g).length
+const readTime = Math.ceil(wordCount / 200)
+
 const ogImage = new URL(`/essays/og/${entry.slug}.png`, Astro.url)
 ---
 
@@ -39,14 +42,18 @@ const ogImage = new URL(`/essays/og/${entry.slug}.png`, Astro.url)
     </aside>
 
     <div
-      class="lg:col-span-8 prose prose-invert prose-lg prose-p:font-sans prose-headings:font-bold prose-headings:tracking-tighter max-w-none flex flex-col gap-16"
+      class="lg:col-span-8 prose prose-invert prose-lg prose-p:font-sans prose-headings:font-bold prose-headings:tracking-tighter max-w-none flex flex-col gap-6"
     >
       <header class="not-prose flex flex-col gap-6">
         <h1 class="text-5xl md:text-7xl font-black tracking-tighter">
           {entry.data.title}
         </h1>
-        <div class="flex gap-4 text-sm font-mono text-mist/50">
+        <div
+          class="flex flex-wrap gap-4 items-center text-sm font-mono text-mist/50"
+        >
           {entry.data.tags.map(tag => <span class="text-accent">#{tag}</span>)}
+          <span class="w-1 h-1 rounded-full bg-mist/20"></span>
+          <span>{readTime} min read</span>
         </div>
       </header>
 

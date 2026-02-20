@@ -28,23 +28,29 @@ const formatDate = (date: Date) => {
 
     <div class="flex flex-col gap-16">
       {
-        essays.map(essay => (
-          <a href={`/essays/${essay.slug}`} class="group block">
-            <article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-baseline border-b border-mist/10 pb-16">
-              <div class="md:col-span-3 font-mono text-sm text-mist/40 group-hover:text-accent transition-colors">
-                {formatDate(essay.data.publishDate)}
-              </div>
-              <div class="md:col-span-9 flex flex-col gap-4">
-                <h2 class="text-4xl font-bold tracking-tight group-hover:translate-x-2 transition-transform duration-300 ease-elastic">
-                  {essay.data.title}
-                </h2>
-                <p class="text-lg text-mist/60 leading-relaxed">
-                  {essay.data.description}
-                </p>
-              </div>
-            </article>
-          </a>
-        ))
+        essays.length > 0 ? (
+          essays.map(essay => (
+            <a href={`/essays/${essay.slug}`} class="group block">
+              <article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-baseline border-b border-mist/10 pb-16">
+                <div class="md:col-span-3 font-mono text-sm text-mist/40 group-hover:text-accent transition-colors">
+                  {formatDate(essay.data.publishDate)}
+                </div>
+                <div class="md:col-span-9 flex flex-col gap-4">
+                  <h2 class="text-4xl font-bold tracking-tight group-hover:translate-x-2 transition-transform duration-300 ease-elastic">
+                    {essay.data.title}
+                  </h2>
+                  <p class="text-lg text-mist/60 leading-relaxed">
+                    {essay.data.description}
+                  </p>
+                </div>
+              </article>
+            </a>
+          ))
+        ) : (
+          <div class="text-center py-24">
+            <p class="font-mono text-mist/40 text-lg">No essays yet.</p>
+          </div>
+        )
       }
     </div>
   </div>

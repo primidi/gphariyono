@@ -1,4 +1,4 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, z } from 'astro:content'
 
 const essays = defineCollection({
   type: 'content',
@@ -6,11 +6,11 @@ const essays = defineCollection({
     title: z.string(),
     publishDate: z.date(),
     description: z.string(),
-    tags: z.array(z.string()),
-  }),
-});
+    tags: z.array(z.string())
+  })
+})
 
-const diary = defineCollection({
+const fragments = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
@@ -20,10 +20,10 @@ const diary = defineCollection({
       'energetic',
       'melancholic',
       'neutral',
-      'euphoric',
+      'euphoric'
     ]),
-    location: z.string().optional(),
-  }),
-});
+    location: z.string().optional()
+  })
+})
 
-export const collections = { essays, diary };
+export const collections = { essays, fragments }

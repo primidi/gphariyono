@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises'
 import { join } from 'path'
 
 export async function getStaticPaths() {
-  const entries = await getCollection('diary')
+  const entries = await getCollection('fragments')
   return entries.map(entry => ({
     params: { slug: entry.slug },
     props: { entry }
@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  entry: CollectionEntry<'diary'>
+  entry: CollectionEntry<'fragments'>
 }
 
 export const GET = async ({ props }: { props: Props }) => {
@@ -75,7 +75,7 @@ export const GET = async ({ props }: { props: Props }) => {
                 {
                   type: 'div',
                   props: {
-                    children: 'DIARY',
+                    children: 'FRAGMENTS',
                     style: {
                       letterSpacing: '0.2em',
                       fontSize: '24px',

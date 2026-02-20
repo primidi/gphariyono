@@ -4,12 +4,14 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import WordCarousel from '../components/WordCarousel'
 
 const essays = (await getCollection('essays')) as CollectionEntry<'essays'>[]
-const diary = (await getCollection('diary')) as CollectionEntry<'diary'>[]
+const fragments = (await getCollection(
+  'fragments'
+)) as CollectionEntry<'fragments'>[]
 
 const latestEssay = essays.sort(
   (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
 )[0]
-const latestDiary = diary.sort(
+const latestFragments = fragments.sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 )[0]
 
@@ -67,25 +69,26 @@ const formatDate = (date: Date) => {
       }
 
       {
-        latestDiary && (
+        latestFragments && (
           <a
-            href={`/diary/${latestDiary.slug}`}
+            href={`/fragments/${latestFragments.slug}`}
             class="block group relative hover:scale-[0.98] transition-all duration-500 ease-elastic"
           >
             <article class="border-t border-mist/20 pt-4 group-hover:border-accent transition-colors duration-300 flex flex-col gap-2">
               <div class="flex justify-between items-baseline font-mono text-xs text-mist/40 group-hover:text-accent transition-colors">
                 <div class="flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-                  <span>LATEST DIARY</span>
+                  <span>LATEST FRAGMENT</span>
                 </div>
-                <span>{formatDate(latestDiary.data.date)}</span>
+                <span>{formatDate(latestFragments.data.date)}</span>
               </div>
               <h2 class="text-3xl font-bold tracking-tight group-hover:text-white transition-colors">
-                {latestDiary.data.title}
+                {latestFragments.data.title}
               </h2>
               <div class="text-sm font-mono text-mist/50">
-                Mood: {latestDiary.data.mood}{' '}
-                {latestDiary.data.location && `// ${latestDiary.data.location}`}
+                Mood: {latestFragments.data.mood}{' '}
+                {latestFragments.data.location &&
+                  `// ${latestFragments.data.location}`}
               </div>
             </article>
           </a>

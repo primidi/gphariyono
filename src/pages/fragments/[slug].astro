@@ -3,12 +3,12 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import Layout from '../../layouts/Layout.astro'
 
 interface Props {
-  entry: CollectionEntry<'diary'>
+  entry: CollectionEntry<'fragments'>
 }
 
 export async function getStaticPaths() {
-  const entries = await getCollection('diary')
-  return entries.map((entry: CollectionEntry<'diary'>) => ({
+  const entries = await getCollection('fragments')
+  return entries.map((entry: CollectionEntry<'fragments'>) => ({
     params: { slug: entry.slug },
     props: { entry }
   }))
@@ -29,12 +29,12 @@ const moodColors = {
 
 const moodColor = moodColors[mood as keyof typeof moodColors] || 'text-mist'
 
-const ogImage = new URL(`/diary/og/${entry.slug}.png`, Astro.url)
+const ogImage = new URL(`/fragments/og/${entry.slug}.png`, Astro.url)
 ---
 
 <Layout
-  title={`Diary: ${title}`}
-  description={`A diary entry from ${date.toLocaleDateString()} - Mood: ${mood}`}
+  title={`Fragment: ${title}`}
+  description={`A fragments entry from ${date.toLocaleDateString()} - Mood: ${mood}`}
   image={ogImage.toString()}
   type="article"
   publishDate={date}
