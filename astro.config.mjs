@@ -10,9 +10,28 @@ import netlify from '@astrojs/netlify'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://gphariyono.com',
-  integrations: [react(), mdx(), sitemap()],
+  integrations: [
+    react(),
+    mdx(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: {
+          en: 'en-US',
+          id: 'id-ID'
+        }
+      }
+    })
+  ],
   adapter: netlify(),
   vite: {
     plugins: [tailwindcss()]
+  },
+  i18n: {
+    locales: ['id', 'en'],
+    defaultLocale: 'en',
+    routing: {
+      prefixDefaultLocale: true
+    }
   }
 })

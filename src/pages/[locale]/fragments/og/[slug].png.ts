@@ -1,23 +1,35 @@
 import { type CollectionEntry, getCollection } from 'astro:content'
 import satori from 'satori'
 import { Resvg } from '@resvg/resvg-js'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import {
+  type Locale,
+  useTranslations,
+  getDateLocale,
+  parseEntryId
+} from '../../../../lib/i18n'
 
 export async function getStaticPaths() {
   const entries = await getCollection('fragments')
-  return entries.map(entry => ({
-    params: { slug: entry.slug },
-    props: { entry }
-  }))
+  return entries.map(entry => {
+    const { lang, slug } = parseEntryId(entry.id)
+    return {
+      params: { locale: lang, slug },
+      props: { entry, locale: lang }
+    }
+  })
 }
 
 interface Props {
   entry: CollectionEntry<'fragments'>
+  locale: Locale
 }
 
 export const GET = async ({ props }: { props: Props }) => {
-  const { entry } = props
+  const { entry, locale } = props
+  const t = useTranslations(locale)
+  const dateFmt = getDateLocale(locale)
 
   const fontRegular = await readFile(
     join(process.cwd(), 'public/fonts/Inter-Regular.woff')
@@ -29,11 +41,11 @@ export const GET = async ({ props }: { props: Props }) => {
   const { title, date, mood, location } = entry.data
 
   const moodColors: Record<string, string> = {
-    contemplative: '#60A5FA', // text-blue-400
-    energetic: '#FACC15', // text-yellow-400
-    melancholic: '#818CF8', // text-indigo-400
-    neutral: '#9CA3AF', // text-gray-400
-    euphoric: '#F472B6' // text-pink-400
+    contemplative: '#60A5FA',
+    energetic: '#FACC15',
+    melancholic: '#818CF8',
+    neutral: '#9CA3AF',
+    euphoric: '#F472B6'
   }
 
   const moodColor = moodColors[mood as string] || '#A1A1AA'
@@ -75,7 +87,7 @@ export const GET = async ({ props }: { props: Props }) => {
                 {
                   type: 'div',
                   props: {
-                    children: 'FRAGMENTS',
+                    children: t('fragments.ogLabel'),
                     style: {
                       letterSpacing: '0.2em',
                       fontSize: '24px',
@@ -87,7 +99,7 @@ export const GET = async ({ props }: { props: Props }) => {
                 {
                   type: 'div',
                   props: {
-                    children: date.toLocaleDateString('en-US', {
+                    children: date.toLocaleDateString(dateFmt, {
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric'
@@ -195,7 +207,6 @@ export const GET = async ({ props }: { props: Props }) => {
   return new Response(pngData as BodyInit, {
     headers: {
       'Content-Type': 'image/png',
-      // Cache for 1 day
       'Cache-Control': 'public, max-age=86400, immutable'
     }
   })

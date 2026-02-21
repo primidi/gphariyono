@@ -1,6 +1,14 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content'
-import Layout from '../../layouts/Layout.astro'
+import Layout from '../../../layouts/Layout.astro'
+import {
+  locales,
+  getLangFromUrl,
+  useTranslations,
+  getLocalizedPath,
+  parseEntryId,
+  stripLocaleFromSlug
+} from '../../../lib/i18n'
 
 interface Props {
   entry: CollectionEntry<'fragments'>
@@ -8,11 +16,17 @@ interface Props {
 
 export async function getStaticPaths() {
   const entries = await getCollection('fragments')
-  return entries.map((entry: CollectionEntry<'fragments'>) => ({
-    params: { slug: entry.slug },
-    props: { entry }
-  }))
+  return entries.map((entry: CollectionEntry<'fragments'>) => {
+    const { lang, slug } = parseEntryId(entry.id)
+    return {
+      params: { locale: lang, slug },
+      props: { entry }
+    }
+  })
 }
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
 
 const { entry } = Astro.props
 const { Content } = await entry.render()
@@ -29,12 +43,15 @@ const moodColors = {
 
 const moodColor = moodColors[mood as keyof typeof moodColors] || 'text-mist'
 
-const ogImage = new URL(`/fragments/og/${entry.slug}.png`, Astro.url)
+const ogImage = new URL(
+  getLocalizedPath(`/fragments/og/${stripLocaleFromSlug(entry.slug)}.png`, lang),
+  Astro.url
+)
 ---
 
 <Layout
   title={`Fragment: ${title}`}
-  description={`A fragments entry from ${date.toLocaleDateString()} - Mood: ${mood}`}
+  description={`A fragments entry from ${date.toLocaleDateString()} - ${t('home.mood')}: ${mood}`}
   image={ogImage.toString()}
   type="article"
   publishDate={date}

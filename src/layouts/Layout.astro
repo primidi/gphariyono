@@ -1,5 +1,14 @@
 ---
 import '../styles/global.css'
+import {
+  locales,
+  getLangFromUrl,
+  useTranslations,
+  getLocalizedPath,
+  getPathForLocale,
+  localeInfo,
+  type Locale
+} from '../lib/i18n'
 
 interface Props {
   title: string
@@ -17,12 +26,16 @@ const {
   publishDate
 } = Astro.props
 
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const currentInfo = localeInfo[lang]
+
 const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 const socialImageURL = new URL(image, Astro.site)
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -69,21 +82,75 @@ const socialImageURL = new URL(image, Astro.site)
         class="max-w-7xl mx-auto flex justify-between items-start pointer-events-auto"
       >
         <a
-          href="/"
+          href={getLocalizedPath('/', lang)}
           class="text-xl font-bold tracking-tighter hover:tracking-widest transition-all duration-700 ease-squish"
         >
           gphariyono
         </a>
-        <div class="flex flex-col gap-2 text-right text-sm font-mono">
-          <a href="/essays" class="hover:text-accent transition-colors">
-            ESSAYS
-          </a>
-          <a
-            href="/fragments"
-            class="hover:text-accent transition-colors translate-x-2"
-          >
-            FRAGMENTS
-          </a>
+        <div class="flex items-center gap-6">
+          <div class="flex flex-col gap-2 text-right text-sm font-mono">
+            <a
+              href={getLocalizedPath('/essays', lang)}
+              class="hover:text-accent transition-colors"
+            >
+              {t('nav.essays')}
+            </a>
+            <a
+              href={getLocalizedPath('/fragments', lang)}
+              class="hover:text-accent transition-colors translate-x-2"
+            >
+              {t('nav.fragments')}
+            </a>
+          </div>
+
+          <!-- Language Dropdown -->
+          <div class="relative" id="locale-dropdown">
+            <button
+              type="button"
+              id="locale-toggle"
+              class="flex items-center gap-1.5 text-sm font-mono text-mist/60 hover:text-accent transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-mist/5"
+              aria-label="Change language"
+              aria-expanded="false"
+              aria-haspopup="listbox"
+            >
+              <span class="text-base leading-none">{currentInfo.flag}</span>
+              <span class="text-xs uppercase">{lang}</span>
+              <svg class="w-3 h-3 opacity-50 transition-transform duration-200" id="locale-chevron" viewBox="0 0 12 12" fill="none">
+                <path d="M3 5L6 8L9 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <div
+              id="locale-menu"
+              class="absolute right-0 top-full mt-2 min-w-[160px] rounded-lg border border-mist/10 bg-void/95 backdrop-blur-md shadow-xl opacity-0 invisible translate-y-1 transition-all duration-200 z-50 mix-blend-normal isolate"
+              role="listbox"
+              aria-label="Select language"
+            >
+              {
+                locales.map(loc => {
+                  const info = localeInfo[loc]
+                  const isActive = loc === lang
+                  return (
+                    <a
+                      href={getPathForLocale(Astro.url, loc)}
+                      role="option"
+                      aria-selected={isActive}
+                      class:list={[
+                        'flex items-center gap-3 px-4 py-2.5 text-sm font-mono transition-colors first:rounded-t-lg last:rounded-b-lg',
+                        isActive
+                          ? 'text-accent bg-accent/5'
+                          : 'text-mist/60 hover:text-mist hover:bg-mist/5'
+                      ]}
+                    >
+                      <span class="text-base leading-none">{info.flag}</span>
+                      <span>{info.label}</span>
+                      {isActive && <span class="ml-auto text-accent text-xs">✓</span>}
+                    </a>
+                  )
+                })
+              }
+            </div>
+          </div>
         </div>
       </div>
     </nav>
@@ -91,5 +158,40 @@ const socialImageURL = new URL(image, Astro.site)
     <main class="relative z-10 min-h-screen px-6 pt-32 pb-20 max-w-7xl mx-auto">
       <slot />
     </main>
+
+    <script>
+      const toggle = document.getElementById('locale-toggle')
+      const menu = document.getElementById('locale-menu')
+      const chevron = document.getElementById('locale-chevron')
+
+      function openMenu() {
+        menu?.classList.remove('opacity-0', 'invisible', 'translate-y-1')
+        menu?.classList.add('opacity-100', 'visible', 'translate-y-0')
+        chevron?.classList.add('rotate-180')
+        toggle?.setAttribute('aria-expanded', 'true')
+      }
+
+      function closeMenu() {
+        menu?.classList.add('opacity-0', 'invisible', 'translate-y-1')
+        menu?.classList.remove('opacity-100', 'visible', 'translate-y-0')
+        chevron?.classList.remove('rotate-180')
+        toggle?.setAttribute('aria-expanded', 'false')
+      }
+
+      toggle?.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const isOpen = toggle.getAttribute('aria-expanded') === 'true'
+        isOpen ? closeMenu() : openMenu()
+      })
+
+      document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('locale-dropdown')
+        if (!dropdown?.contains(e.target as Node)) closeMenu()
+      })
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu()
+      })
+    </script>
   </body>
 </html>

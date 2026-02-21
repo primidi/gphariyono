@@ -1,23 +1,35 @@
 import { type CollectionEntry, getCollection } from 'astro:content'
 import satori from 'satori'
 import { Resvg } from '@resvg/resvg-js'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import {
+  type Locale,
+  useTranslations,
+  getDateLocale,
+  parseEntryId
+} from '../../../../lib/i18n'
 
 export async function getStaticPaths() {
   const entries = await getCollection('essays')
-  return entries.map(entry => ({
-    params: { slug: entry.slug },
-    props: { entry }
-  }))
+  return entries.map(entry => {
+    const { lang, slug } = parseEntryId(entry.id)
+    return {
+      params: { locale: lang, slug },
+      props: { entry, locale: lang }
+    }
+  })
 }
 
 interface Props {
   entry: CollectionEntry<'essays'>
+  locale: Locale
 }
 
 export const GET = async ({ props }: { props: Props }) => {
-  const { entry } = props
+  const { entry, locale } = props
+  const t = useTranslations(locale)
+  const dateFmt = getDateLocale(locale)
 
   const fontRegular = await readFile(
     join(process.cwd(), 'public/fonts/Inter-Regular.woff')
@@ -42,7 +54,7 @@ export const GET = async ({ props }: { props: Props }) => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundColor: '#18181b', // zinc-900 (neutral dark bg)
+                backgroundColor: '#18181b',
                 backgroundImage:
                   'radial-gradient(circle at 25% 25%, #27272a 2%, transparent 0%), radial-gradient(circle at 75% 75%, #27272a 2%, transparent 0%)',
                 backgroundSize: '24px 24px',
@@ -66,11 +78,11 @@ export const GET = async ({ props }: { props: Props }) => {
                 {
                   type: 'div',
                   props: {
-                    children: 'ESSAY',
+                    children: t('essays.ogLabel'),
                     style: {
                       letterSpacing: '0.2em',
                       fontSize: '24px',
-                      color: '#71717a', // zinc-500
+                      color: '#71717a',
                       marginBottom: '10px'
                     }
                   }
@@ -78,14 +90,14 @@ export const GET = async ({ props }: { props: Props }) => {
                 {
                   type: 'div',
                   props: {
-                    children: publishDate.toLocaleDateString('en-US', {
+                    children: publishDate.toLocaleDateString(dateFmt, {
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric'
                     }),
                     style: {
                       fontSize: '20px',
-                      color: '#52525b', // zinc-600
+                      color: '#52525b',
                       marginBottom: '40px'
                     }
                   }
@@ -97,7 +109,7 @@ export const GET = async ({ props }: { props: Props }) => {
                     style: {
                       fontSize: '72px',
                       fontWeight: 700,
-                      color: '#f4f4f5', // zinc-100
+                      color: '#f4f4f5',
                       lineHeight: 1.1,
                       margin: 0,
                       marginBottom: '30px'
@@ -110,7 +122,7 @@ export const GET = async ({ props }: { props: Props }) => {
                     children: description,
                     style: {
                       fontSize: '32px',
-                      color: '#a1a1aa', // zinc-400
+                      color: '#a1a1aa',
                       lineHeight: 1.5,
                       margin: 0,
                       marginBottom: '40px',
@@ -137,8 +149,8 @@ export const GET = async ({ props }: { props: Props }) => {
                         children: `#${tag}`,
                         style: {
                           fontSize: '20px',
-                          color: '#e4e4e7', // zinc-200 (using accent replacement color for now, maybe orange?)
-                          backgroundColor: '#27272a', // zinc-800
+                          color: '#e4e4e7',
+                          backgroundColor: '#27272a',
                           padding: '8px 16px',
                           borderRadius: '9999px',
                           fontFamily: 'monospace'
@@ -155,7 +167,7 @@ export const GET = async ({ props }: { props: Props }) => {
           display: 'flex',
           width: '100%',
           height: '100%',
-          backgroundColor: '#09090b', // zinc-950
+          backgroundColor: '#09090b',
           fontFamily: 'Inter'
         }
       }

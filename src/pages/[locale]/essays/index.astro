@@ -1,0 +1,75 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+import { getCollection, type CollectionEntry } from 'astro:content'
+import {
+  locales,
+  getLangFromUrl,
+  useTranslations,
+  getLocalizedPath,
+  getDateLocale,
+  getLocalizedEntries,
+  stripLocaleFromSlug
+} from '../../../lib/i18n'
+
+export function getStaticPaths() {
+  return locales.map(locale => ({ params: { locale } }))
+}
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const dateFmt = getDateLocale(lang)
+
+const essays = getLocalizedEntries(
+  (await getCollection('essays')) as CollectionEntry<'essays'>[],
+  lang
+).sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat(dateFmt, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date)
+}
+---
+
+<Layout title={t('essays.pageTitle')} description={t('essays.description')}>
+  <div class="max-w-4xl mx-auto flex flex-col gap-24">
+    <header>
+      <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-mist/20">
+        {t('essays.title')}
+      </h1>
+    </header>
+
+    <div class="flex flex-col gap-16">
+      {
+        essays.length > 0 ? (
+          essays.map(essay => (
+            <a
+              href={getLocalizedPath(`/essays/${stripLocaleFromSlug(essay.slug)}`, lang)}
+              class="group block"
+            >
+              <article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-baseline border-b border-mist/10 pb-16">
+                <div class="md:col-span-3 font-mono text-sm text-mist/40 group-hover:text-accent transition-colors">
+                  {formatDate(essay.data.publishDate)}
+                </div>
+                <div class="md:col-span-9 flex flex-col gap-4">
+                  <h2 class="text-4xl font-bold tracking-tight group-hover:translate-x-2 transition-transform duration-300 ease-elastic">
+                    {essay.data.title}
+                  </h2>
+                  <p class="text-lg text-mist/60 leading-relaxed">
+                    {essay.data.description}
+                  </p>
+                </div>
+              </article>
+            </a>
+          ))
+        ) : (
+          <div class="text-center py-24">
+            <p class="font-mono text-mist/40 text-lg">{t('essays.empty')}</p>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>

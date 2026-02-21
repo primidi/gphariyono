@@ -1,19 +1,33 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content'
-import Layout from '../../layouts/Layout.astro'
-import TableOfContents from '../../components/TableOfContents'
+import Layout from '../../../layouts/Layout.astro'
+import TableOfContents from '../../../components/TableOfContents'
+import {
+  locales,
+  getLangFromUrl,
+  useTranslations,
+  getLocalizedPath,
+  parseEntryId,
+  stripLocaleFromSlug
+} from '../../../lib/i18n'
 
 export async function getStaticPaths() {
   const essays = (await getCollection('essays')) as CollectionEntry<'essays'>[]
-  return essays.map(entry => ({
-    params: { slug: entry.slug },
-    props: { entry }
-  }))
+  return essays.map(entry => {
+    const { lang, slug } = parseEntryId(entry.id)
+    return {
+      params: { locale: lang, slug },
+      props: { entry }
+    }
+  })
 }
 
 interface Props {
   entry: CollectionEntry<'essays'>
 }
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
 
 const { entry } = Astro.props
 const { Content, headings } = await entry.render()
@@ -21,7 +35,10 @@ const { Content, headings } = await entry.render()
 const wordCount = entry.body.split(/\s+/g).length
 const readTime = Math.ceil(wordCount / 200)
 
-const ogImage = new URL(`/essays/og/${entry.slug}.png`, Astro.url)
+const ogImage = new URL(
+  getLocalizedPath(`/essays/og/${stripLocaleFromSlug(entry.slug)}.png`, lang),
+  Astro.url
+)
 ---
 
 <Layout
@@ -53,7 +70,7 @@ const ogImage = new URL(`/essays/og/${entry.slug}.png`, Astro.url)
         >
           {entry.data.tags.map(tag => <span class="text-accent">#{tag}</span>)}
           <span class="w-1 h-1 rounded-full bg-mist/20"></span>
-          <span>{readTime} min read</span>
+          <span>{readTime} {t('essays.minRead')}</span>
         </div>
       </header>
 

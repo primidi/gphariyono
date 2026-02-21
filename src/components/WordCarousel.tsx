@@ -44,7 +44,9 @@ export default function WordCarousel({
           {word}
         </span>
       ))}
-      <span className="invisible">{words[0]}</span>
+      <span className="invisible">
+        {words.reduce((a, b) => (a.length >= b.length ? a : b))}
+      </span>
     </span>
   )
 }

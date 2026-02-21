@@ -1,0 +1,120 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getCollection, type CollectionEntry } from 'astro:content'
+import WordCarousel from '../../components/WordCarousel'
+import {
+  locales,
+  getLangFromUrl,
+  useTranslations,
+  getLocalizedPath,
+  getDateLocale,
+  getLocalizedEntries,
+  stripLocaleFromSlug
+} from '../../lib/i18n'
+
+export function getStaticPaths() {
+  return locales.map(locale => ({ params: { locale } }))
+}
+
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const dateFmt = getDateLocale(lang)
+const words: string[] = JSON.parse(t('home.words'))
+
+const allEssays = (await getCollection('essays')) as CollectionEntry<'essays'>[]
+const allFragments = (await getCollection(
+  'fragments'
+)) as CollectionEntry<'fragments'>[]
+
+const essays = getLocalizedEntries(allEssays, lang)
+const fragments = getLocalizedEntries(allFragments, lang)
+
+const latestEssay = essays.sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
+)[0]
+const latestFragments = fragments.sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+)[0]
+
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat(dateFmt, {
+    month: 'short',
+    day: 'numeric'
+  }).format(date)
+}
+---
+
+<Layout
+  title={t('home.title')}
+  description={t('home.description')}
+  image={getLocalizedPath('/og.png', lang)}
+>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[60vh]">
+    <header class="lg:sticky lg:top-32 flex flex-col gap-8">
+      <h1
+        class="text-6xl md:text-8xl font-black tracking-tighter leading-tight pb-4 text-transparent bg-clip-text bg-linear-to-br from-mist to-mist/40 animate-pulse"
+      >
+        Gharis Primada Hariyono
+      </h1>
+      <div
+        class="text-lg md:text-xl font-mono text-mist/60 max-w-2xl leading-relaxed"
+      >
+        {t('home.writeAbout')}
+        <span class="text-accent">
+          <WordCarousel words={words} client:load />
+        </span>
+      </div>
+    </header>
+
+    <div class="flex flex-col gap-12">
+      {
+        latestEssay && (
+          <a
+            href={getLocalizedPath(`/essays/${stripLocaleFromSlug(latestEssay.slug)}`, lang)}
+            class="block group relative hover:scale-[0.98] transition-all duration-500 ease-elastic"
+          >
+            <article class="border-t border-mist/20 pt-4 group-hover:border-accent transition-colors duration-300 flex flex-col gap-2">
+              <div class="flex justify-between items-baseline font-mono text-xs text-mist/40 group-hover:text-accent transition-colors">
+                <span>{t('home.latestEssay')}</span>
+                <span>{formatDate(latestEssay.data.publishDate)}</span>
+              </div>
+              <h2 class="text-3xl font-bold tracking-tight group-hover:text-white transition-colors">
+                {latestEssay.data.title}
+              </h2>
+              <p class="text-sm text-mist/60 line-clamp-3 leading-relaxed">
+                {latestEssay.data.description}
+              </p>
+            </article>
+          </a>
+        )
+      }
+
+      {
+        latestFragments && (
+          <a
+            href={getLocalizedPath(`/fragments/${stripLocaleFromSlug(latestFragments.slug)}`, lang)}
+            class="block group relative hover:scale-[0.98] transition-all duration-500 ease-elastic"
+          >
+            <article class="border-t border-mist/20 pt-4 group-hover:border-accent transition-colors duration-300 flex flex-col gap-2">
+              <div class="flex justify-between items-baseline font-mono text-xs text-mist/40 group-hover:text-accent transition-colors">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                  <span>{t('home.latestFragment')}</span>
+                </div>
+                <span>{formatDate(latestFragments.data.date)}</span>
+              </div>
+              <h2 class="text-3xl font-bold tracking-tight group-hover:text-white transition-colors">
+                {latestFragments.data.title}
+              </h2>
+              <div class="text-sm font-mono text-mist/50">
+                {t('home.mood')}: {latestFragments.data.mood}{' '}
+                {latestFragments.data.location &&
+                  `// ${latestFragments.data.location}`}
+              </div>
+            </article>
+          </a>
+        )
+      }
+    </div>
+  </div>
+</Layout>
