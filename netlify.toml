@@ -4,18 +4,3 @@
 
 [build.environment]
   NODE_VERSION = "20"
-
-[[redirects]]
-  from = "/"
-  to = "/en"
-  status = 302
-
-[[redirects]]
-  from = "/essays"
-  to = "/en/essays"
-  status = 302
-
-[[redirects]]
-  from = "/fragments"
-  to = "/en/fragments"
-  status = 302
