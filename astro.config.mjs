@@ -9,7 +9,7 @@ import netlify from '@astrojs/netlify'
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://gphariyono.com',
+  site: 'https://gphariyono.netlify.app',
   integrations: [
     react(),
     mdx(),

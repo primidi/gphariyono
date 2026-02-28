@@ -35,16 +35,16 @@ const { Content, headings } = await entry.render()
 const wordCount = entry.body.split(/\s+/g).length
 const readTime = Math.ceil(wordCount / 200)
 
-const ogImage = new URL(
-  getLocalizedPath(`/essays/og/${stripLocaleFromSlug(entry.slug)}.png`, lang),
-  Astro.url
+const ogImage = getLocalizedPath(
+  `/essays/og/${stripLocaleFromSlug(entry.slug)}.png`,
+  lang
 )
 ---
 
 <Layout
   title={entry.data.title}
   description={entry.data.description}
-  image={ogImage.toString()}
+  image={ogImage}
   type="article"
   publishDate={entry.data.publishDate}
 >

@@ -33,7 +33,11 @@ const formatDate = (date: Date) => {
 }
 ---
 
-<Layout title={t('essays.pageTitle')} description={t('essays.description')}>
+<Layout
+  title={t('essays.pageTitle')}
+  description={t('essays.description')}
+  image={getLocalizedPath('/og.png', lang)}
+>
   <div class="max-w-4xl mx-auto flex flex-col gap-24">
     <header>
       <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-mist/20">
@@ -46,7 +50,10 @@ const formatDate = (date: Date) => {
         essays.length > 0 ? (
           essays.map(essay => (
             <a
-              href={getLocalizedPath(`/essays/${stripLocaleFromSlug(essay.slug)}`, lang)}
+              href={getLocalizedPath(
+                `/essays/${stripLocaleFromSlug(essay.slug)}`,
+                lang
+              )}
               class="group block"
             >
               <article class="grid grid-cols-1 md:grid-cols-12 gap-8 items-baseline border-b border-mist/10 pb-16">

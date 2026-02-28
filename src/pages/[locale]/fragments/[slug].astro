@@ -43,16 +43,16 @@ const moodColors = {
 
 const moodColor = moodColors[mood as keyof typeof moodColors] || 'text-mist'
 
-const ogImage = new URL(
-  getLocalizedPath(`/fragments/og/${stripLocaleFromSlug(entry.slug)}.png`, lang),
-  Astro.url
+const ogImage = getLocalizedPath(
+  `/fragments/og/${stripLocaleFromSlug(entry.slug)}.png`,
+  lang
 )
 ---
 
 <Layout
   title={`Fragment: ${title}`}
   description={`A fragments entry from ${date.toLocaleDateString()} - ${t('home.mood')}: ${mood}`}
-  image={ogImage.toString()}
+  image={ogImage}
   type="article"
   publishDate={date}
 >
