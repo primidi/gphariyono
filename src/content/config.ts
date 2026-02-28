@@ -20,7 +20,9 @@ const fragments = defineCollection({
       'energetic',
       'melancholic',
       'neutral',
-      'euphoric'
+      'euphoric',
+      'anxious',
+      'irritated'
     ]),
     location: z.string().optional()
   })
