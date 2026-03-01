@@ -4,6 +4,7 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import WordCarousel from '../../components/WordCarousel'
 import {
   locales,
+  type Locale,
   getLangFromUrl,
   useTranslations,
   getLocalizedPath,
@@ -16,7 +17,7 @@ export function getStaticPaths() {
   return locales.map(locale => ({ params: { locale } }))
 }
 
-const lang = getLangFromUrl(Astro.url)
+const lang = (Astro.params.locale as Locale) || getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
 const dateFmt = getDateLocale(lang)
 const words: string[] = JSON.parse(t('home.words'))
@@ -38,7 +39,7 @@ const latestFragments = fragments.sort(
 
 const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat(dateFmt, {
-    month: 'short',
+    month: 'long',
     day: 'numeric'
   }).format(date)
 }
@@ -70,7 +71,10 @@ const formatDate = (date: Date) => {
       {
         latestEssay && (
           <a
-            href={getLocalizedPath(`/essays/${stripLocaleFromSlug(latestEssay.slug)}`, lang)}
+            href={getLocalizedPath(
+              `/essays/${stripLocaleFromSlug(latestEssay.slug)}`,
+              lang
+            )}
             class="block group relative hover:scale-[0.98] transition-all duration-500 ease-elastic"
           >
             <article class="border-t border-mist/20 pt-4 group-hover:border-accent transition-colors duration-300 flex flex-col gap-2">
@@ -92,7 +96,10 @@ const formatDate = (date: Date) => {
       {
         latestFragments && (
           <a
-            href={getLocalizedPath(`/fragments/${stripLocaleFromSlug(latestFragments.slug)}`, lang)}
+            href={getLocalizedPath(
+              `/fragments/${stripLocaleFromSlug(latestFragments.slug)}`,
+              lang
+            )}
             class="block group relative hover:scale-[0.98] transition-all duration-500 ease-elastic"
           >
             <article class="border-t border-mist/20 pt-4 group-hover:border-accent transition-colors duration-300 flex flex-col gap-2">

@@ -3,6 +3,7 @@ import Layout from '../../../layouts/Layout.astro'
 import { getCollection, type CollectionEntry } from 'astro:content'
 import {
   locales,
+  type Locale,
   getLangFromUrl,
   useTranslations,
   getLocalizedPath,
@@ -15,7 +16,7 @@ export function getStaticPaths() {
   return locales.map(locale => ({ params: { locale } }))
 }
 
-const lang = getLangFromUrl(Astro.url)
+const lang = (Astro.params.locale as Locale) || getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
 const dateFmt = getDateLocale(lang)
 

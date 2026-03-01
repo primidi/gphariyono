@@ -2,10 +2,11 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 import Layout from '../../../layouts/Layout.astro'
 import {
-  locales,
+  type Locale,
   getLangFromUrl,
   useTranslations,
   getLocalizedPath,
+  getDateLocale,
   parseEntryId,
   stripLocaleFromSlug
 } from '../../../lib/i18n'
@@ -25,13 +26,23 @@ export async function getStaticPaths() {
   })
 }
 
-const lang = getLangFromUrl(Astro.url)
+const lang = (Astro.params.locale as Locale) || getLangFromUrl(Astro.url)
 const t = useTranslations(lang)
+const dateFmt = getDateLocale(lang)
 
 const { entry } = Astro.props
 const { Content } = await entry.render()
 
 const { title, date, mood, location } = entry.data
+
+const formatFullDate = (d: Date) => {
+  return new Intl.DateTimeFormat(dateFmt, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(d)
+}
 
 const moodColors = {
   contemplative: 'text-blue-400',
@@ -51,7 +62,7 @@ const ogImage = getLocalizedPath(
 
 <Layout
   title={`Fragment: ${title}`}
-  description={`A fragments entry from ${date.toLocaleDateString()} - ${t('home.mood')}: ${mood}`}
+  description={`A fragments entry from ${formatFullDate(date)} - ${t('home.mood')}: ${mood}`}
   image={ogImage}
   type="article"
   publishDate={date}
@@ -59,7 +70,7 @@ const ogImage = getLocalizedPath(
   <div class="max-w-xl mx-auto py-20 flex flex-col gap-12">
     <header class="text-center flex flex-col gap-4">
       <div class="font-mono text-xs text-mist/40">
-        {entry.data.date.toDateString()}
+        {formatFullDate(entry.data.date)}
       </div>
       <h1 class="text-3xl font-bold tracking-tight">{entry.data.title}</h1>
       <div class="flex justify-center gap-4 text-sm font-mono">
